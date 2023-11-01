@@ -98,7 +98,6 @@ class UserModel {
       niveau: json['niveau'],
     );
   }
-
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
     _data['user_id'] = user_id;

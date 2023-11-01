@@ -1,3 +1,5 @@
+import 'package:appariteurs/helper/userController.dart';
+import 'package:appariteurs/loginPage/login_success/login_success_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../acteursClass/userDfault.dart';
 import '../../../components/keyboard.dart';
@@ -91,12 +93,17 @@ class _SignFormState extends State<SignForm> {
           SizedBox(height: getProportionateScreenHeight(20)),
           DefaultButton(
             text: "Continue",
-            press: () {
+            press: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                // If the login is successful, continue
-                KeyboardUtil.hideKeyboard(context);
-                handleLogin(email, password);
+                final user = await UserController.login(email!, password!);
+                if (user != null) {
+                  // Connexion réussie, faites ce que vous voulez avec les données utilisateur
+                  KeyboardUtil.hideKeyboard(context);
+                  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+                } else {
+                  // Gérer la connexion échouée ici
+                }
               }
             },
           ),
