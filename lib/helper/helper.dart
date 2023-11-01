@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../acteursClass/userDfault.dart';
-
 class ApiHelper {
-  final String baseUrl = "https://appariw.cluster024.hosting.ovh.net/ap/api/user/login.php";
+  final String baseUrl = "https://appariteur.com/api/user/login.php";
   final Dio dio = Dio();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-
-  Future<Map<String, dynamic>> loginUser(String email, String password) async {
-      final response = await dio.post(baseUrl, data: json.encode({
+//Future<Map<String, dynamic>> loginUser(email,password) async
+  Future<String> loginUser(email,password) async {
+      final response = await dio.post(baseUrl,
+        data: json.encode({
           "passwordUser": password,
           "emailUser": email
         }),
@@ -36,7 +36,7 @@ class ApiHelper {
       final responseData = json.decode(response.data);
       return UserModel.fromJson(responseData['userData']);
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 

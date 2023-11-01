@@ -17,8 +17,8 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  late String email;
-  late String password;
+  String? email;
+  String? password;
   bool? remember = false;
   final List<String?> errors = [];
   void addError({String? error}) {
@@ -37,13 +37,12 @@ class _SignFormState extends State<SignForm> {
   }
   ApiHelper apiHelper = ApiHelper();
 
-  void handleLogin(String email, String password) async {
+  void handleLogin(email, password) async {
     try {
-      Map<String, dynamic> response = await apiHelper.loginUser(email, password);
-       var token = response['token'];
-      if (kDebugMode) {
+      String response = await apiHelper.loginUser(email, password);
+      //String response = (await apiHelper.loginUser(email, password)) as String;
+       var token = response;
         print(response);
-      }
       if (token != null) {
         // Successful login - continue to the next screen or perform any necessary action.
         // Example: Navigate to another screen.
@@ -51,8 +50,8 @@ class _SignFormState extends State<SignForm> {
       } else {
         // Login failed - display an error message.
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login failed. Please check your credentials.'),
+          const SnackBar(
+            content: Text("Login failed. Please check your credentials."),
           ),
         );
       }
@@ -60,8 +59,8 @@ class _SignFormState extends State<SignForm> {
       // Handle any exceptions that may occur during the login process.
       print('Login error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred during login.'),
+        const SnackBar(
+          content: Text("Une erreur s'est produite lors de la connexion."),
         ),
       );
     }
@@ -110,7 +109,7 @@ class _SignFormState extends State<SignForm> {
                 _formKey.currentState!.save();
                 // Si connexion susses, cntinuer
                 KeyboardUtil.hideKeyboard(context);
-                handleLogin(email, password);
+                handleLogin(email!, password!);
               }
               String? emaill = email;
               String? passs = password;
@@ -126,7 +125,7 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       obscureText: true,
-      onSaved: (String? newValue) => password = newValue!,
+      onSaved: (String? newValue) => password = newValue,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
@@ -157,7 +156,7 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
-      onSaved: (String? newValue) => email = newValue!,
+      onSaved: (String? newValue) => email = newValue,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
