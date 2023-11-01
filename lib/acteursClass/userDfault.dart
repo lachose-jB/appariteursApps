@@ -79,22 +79,24 @@ class UserModel {
   String get getNiveau => niveau;
   set setNiveau(String value) => niveau = value;
 
-  UserModel.fromJson(Map<String, dynamic> json) {
-    user_id = json['user_id'];
-    appariteur_id = json['appariteur_id'];
-    name = json['name'];
-    email = json['email'];
-    sexe = json['sexe'];
-    status = json['status'];
-    image = json['image'];
-    adresse = json['adresse'];
-    datenais = json['datenais'];
-    lieunais = json['lieunais'];
-    rue = json['rue'];
-    code_postal = json['code_postal'];
-    ville = json['ville'];
-    pays = json['pays'];
-    niveau = json['niveau'];
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      user_id: json['user_id'],
+      appariteur_id: json['appariteur_id'],
+      name: json['name'],
+      email: json['email'],
+      sexe: json['sexe'],
+      status: json['status'],
+      image: json['image'],
+      adresse: json['adresse'],
+      datenais: json['datenais'],
+      lieunais: json['lieunais'],
+      rue: json['rue'],
+      code_postal: json['code_postal'],
+      ville: json['ville'],
+      pays: json['pays'],
+      niveau: json['niveau'],
+    );
   }
 
   Map<String, dynamic> toJson() {

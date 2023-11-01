@@ -22,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController postalCodeController = TextEditingController();
   TextEditingController countryController = TextEditingController();
   bool isEditing = false;
-  ApiHelper apiHelper = ApiHelper();
+  //ApiHelper apiHelper = ApiHelper();
   late UserModel user;
   _ProfilePageState() {
     user = UserModel(

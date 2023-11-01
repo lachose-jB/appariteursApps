@@ -1,47 +1,33 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../acteursClass/userDfault.dart';
+
 class ApiHelper {
-  final String baseUrl = "https://appariteur.com/api/user/login.php";
+  final String apiUrl = "https://appariteur.com/api/user/login.php";
   final Dio dio = Dio();
-  final FlutterSecureStorage storage = const FlutterSecureStorage();
-//Future<Map<String, dynamic>> loginUser(email,password) async
-  Future<String> loginUser(email,password) async {
-      final response = await dio.post(baseUrl,
-        data: json.encode({
-          "passwordUser": password,
-          "emailUser": email
-        }),
+
+  Future<Map<String, dynamic>> loginUser( email, password) async {
+      final response = await dio.post(apiUrl,
+        data: {
+          'emailUser': email,
+          'passwordUser': password,
+        },
         options: Options(
           headers: {
             'Content-Type': 'application/json',
           },
         ),
       );
-      final responseData = json.decode(response.data);
-      await storage.write(key: 'token', value: responseData['token']);
-      return responseData;
-  }
-  Future<UserModel> getUserInfo() async {
-    final token = await storage.read(key: 'token');
-    try {
-      final response = await dio.get(baseUrl, options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      final responseData = json.decode(response.data);
-      return UserModel.fromJson(responseData['userData']);
-    } catch (error) {
-      rethrow;
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.data);
+        final String token = responseData['token'];
+        final Map<String, dynamic> userData = responseData['userData'];
+        return {
+          'token': token,
+          'userData': userData,
+        };
+      } else {
+        throw "Échec de la connexion. Le serveur a renvoyé le code d'état: ${response.statusCode}";
+      }
     }
   }
-
-  Future<String?> getToken() async {
-
-    return await storage.read(key: 'token');
-  }
-}

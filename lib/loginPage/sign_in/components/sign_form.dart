@@ -1,14 +1,13 @@
-import 'package:appariteurs/MyBottomBar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../acteursClass/userDfault.dart';
 import '../../../components/keyboard.dart';
 import '../../../components/size_config.dart';
 import '../../../constants.dart';
-import '../../../helper/helper.dart';
 import '../../custom_surfix_icon.dart';
 import '../../default_button.dart';
 import '../../forgot_password/forgot_password_screen.dart';
 import '../../form_error.dart';
+import 'package:appariteurs/helper/helper.dart';
 
 class SignForm extends StatefulWidget {
   @override
@@ -17,10 +16,12 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
-  String? password;
+  String email = "";
+  String password = "";
   bool? remember = false;
+  ApiHelper apiHelper = ApiHelper();
   final List<String?> errors = [];
+
   void addError({String? error}) {
     if (!errors.contains(error)) {
       setState(() {
@@ -28,6 +29,7 @@ class _SignFormState extends State<SignForm> {
       });
     }
   }
+
   void removeError({String? error}) {
     if (errors.contains(error)) {
       setState(() {
@@ -35,40 +37,23 @@ class _SignFormState extends State<SignForm> {
       });
     }
   }
-  ApiHelper apiHelper = ApiHelper();
 
-  void handleLogin(email, password) async {
-    try {
-      String response = await apiHelper.loginUser(email, password);
-      //String response = (await apiHelper.loginUser(email, password)) as String;
-       var token = response;
-        print(response);
-      if (token != null) {
-        // Successful login - continue to the next screen or perform any necessary action.
-        // Example: Navigate to another screen.
-        Navigator.push(context, MaterialPageRoute(builder: (context) => MyBottomBar(token)));
+  Future<void> handleLogin(String email, String password) async {
+      final result = await apiHelper.loginUser('email', 'password');
+      if (result is Map<String, dynamic>) {
+        final String token = result['token'];
+        final Map<String, dynamic> userData = result['userData'];
+        // Do something with the token and user data
+        print(token);
+        print(userData);
       } else {
-        // Login failed - display an error message.
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Login failed. Please check your credentials."),
-          ),
-        );
+        // Handle login failure
+        print("Erreur d'identification: $result");
       }
-    } catch (error) {
-      // Handle any exceptions that may occur during the login process.
-      print('Login error: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Une erreur s'est produite lors de la connexion."),
-        ),
-      );
     }
-  }
 
   @override
   Widget build(BuildContext context) {
-    Future<String?> token = apiHelper.getToken();
     return Form(
       key: _formKey,
       child: Column(
@@ -92,7 +77,9 @@ class _SignFormState extends State<SignForm> {
               const Spacer(),
               GestureDetector(
                 onTap: () => Navigator.pushNamed(
-                    context, ForgotPasswordScreen.routeName),
+                  context,
+                  ForgotPasswordScreen.routeName,
+                ),
                 child: const Text(
                   "Mot de passe oublié",
                   style: TextStyle(decoration: TextDecoration.underline),
@@ -107,14 +94,10 @@ class _SignFormState extends State<SignForm> {
             press: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                // Si connexion susses, cntinuer
+                // If the login is successful, continue
                 KeyboardUtil.hideKeyboard(context);
-                handleLogin(email!, password!);
+                handleLogin(email, password);
               }
-              String? emaill = email;
-              String? passs = password;
-              print(emaill);
-              print(passs);
             },
           ),
         ],
@@ -125,14 +108,13 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       obscureText: true,
-      onSaved: (String? newValue) => password = newValue,
+      onSaved: (newValue) => password = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
         } else if (value.length >= 8) {
           removeError(error: kShortPassError);
         }
-        return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
@@ -142,7 +124,6 @@ class _SignFormState extends State<SignForm> {
           addError(error: kShortPassError);
           return "";
         }
-        return null;
       },
       decoration: const InputDecoration(
         labelText: "Mot de Passe",
@@ -156,14 +137,13 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
-      onSaved: (String? newValue) => email = newValue,
+      onSaved: (newValue) => email = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
         } else if (emailValidatorRegExp.hasMatch(value)) {
           removeError(error: kInvalidEmailError);
         }
-        return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
@@ -173,7 +153,6 @@ class _SignFormState extends State<SignForm> {
           addError(error: kInvalidEmailError);
           return "";
         }
-        return null;
       },
       decoration: const InputDecoration(
         labelText: "Email",
