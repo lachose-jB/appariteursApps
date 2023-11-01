@@ -1,0 +1,1 @@
+enum MenuState { home,planning,mission, pv, profile }
