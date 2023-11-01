@@ -9,9 +9,7 @@ class ApiHelper {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
 
   Future<Map<String, dynamic>> loginUser(String email, String password) async {
-    try {
-      final response = await dio.post(baseUrl,
-        data: json.encode({
+      final response = await dio.post(baseUrl, data: json.encode({
           "passwordUser": password,
           "emailUser": email
         }),
@@ -24,9 +22,6 @@ class ApiHelper {
       final responseData = json.decode(response.data);
       await storage.write(key: 'token', value: responseData['token']);
       return responseData;
-    } catch (error) {
-      throw error;
-    }
   }
   Future<UserModel> getUserInfo() async {
     final token = await storage.read(key: 'token');

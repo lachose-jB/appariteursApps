@@ -1,4 +1,5 @@
 import 'package:appariteurs/MyBottomBar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../components/keyboard.dart';
 import '../../../components/size_config.dart';
@@ -16,8 +17,8 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
-  String? password;
+  late String email;
+  late String password;
   bool? remember = false;
   final List<String?> errors = [];
   void addError({String? error}) {
@@ -36,24 +37,36 @@ class _SignFormState extends State<SignForm> {
   }
   ApiHelper apiHelper = ApiHelper();
 
-  Future<void> handleLogin(String email, String password) async {
-    Map<String, dynamic> reponse = await apiHelper.loginUser(email, password);
-    String? token = reponse['token'];
-    print(token);
-    if (token != null) {
-      // La connexion a réussi, continuez vers la page d'accueil en passant le token
-      Navigator.push(context, MaterialPageRoute(builder: (context) => MyBottomBar(token),
-      ),
-      );
-    } else {
-      // La connexion a échoué, affichez un message d'erreur
+  void handleLogin(String email, String password) async {
+    try {
+      Map<String, dynamic> response = await apiHelper.loginUser(email, password);
+       var token = response['token'];
+      if (kDebugMode) {
+        print(response);
+      }
+      if (token != null) {
+        // Successful login - continue to the next screen or perform any necessary action.
+        // Example: Navigate to another screen.
+        Navigator.push(context, MaterialPageRoute(builder: (context) => MyBottomBar(token)));
+      } else {
+        // Login failed - display an error message.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed. Please check your credentials.'),
+          ),
+        );
+      }
+    } catch (error) {
+      // Handle any exceptions that may occur during the login process.
+      print('Login error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Échec de la connexion. Vérifiez vos informations d\'identification.'),
+          content: Text('An error occurred during login.'),
         ),
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     Future<String?> token = apiHelper.getToken();
@@ -113,7 +126,7 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       obscureText: true,
-      onSaved: (newValue) => password = newValue,
+      onSaved: (String? newValue) => password = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kPassNullError);
@@ -144,7 +157,7 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
+      onSaved: (String? newValue) => email = newValue!,
       onChanged: (value) {
         if (value.isNotEmpty) {
           removeError(error: kEmailNullError);
