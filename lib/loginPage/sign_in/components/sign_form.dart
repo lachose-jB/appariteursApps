@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../components/size_config.dart';
 import '../../../constants.dart';
 import '../../../helper/user.dart';
-import '../../../page/profile/components/profilPage.dart';
+import '../../../storage/sqlLite.dart';
 import '../../custom_surfix_icon.dart';
 import '../../default_button.dart';
 import '../../forgot_password/forgot_password_screen.dart';
@@ -61,19 +61,50 @@ class _SignFormState extends State<SignForm> {
      prefs.setString('password', password);
    }
  }
- Future<void> getUserData() async {
+  Future<void> getUserData() async {
     UserData? userData = await UserController.login(email, password);
-
     if (userData != null) {
-      // You have the initial user data, you can now use it as needed.
-      print('User ID: ${userData.userId}');
-      print('User Name: ${userData.name}');
-      // ... other user properties
+      final database = DatabaseHelper.instance;
+
+      // Vérifiez si l'utilisateur existe déjà dans la base de données.
+      final existingUser = await database.getUserById(userData.userId);
+
+      if (existingUser == null) {
+        // L'utilisateur n'existe pas encore, alors nous l'insérons.
+        final userMap = {
+          database.columnUserId: userData.userId,
+          database.columnAppariteurId: userData.appariteurId,
+          database.columnName: userData.name,
+          database.columnEmail: userData.email,
+          database.columnTel: userData.tel,
+          database.columnSexe: userData.sexe,
+          database.columnImage: userData.image,
+          database.columnAdresse: userData.adresse,
+          database.columnDatenais: userData.datenais,
+          database.columnLieunais: userData.lieunais,
+          database.columnRue: userData.rue,
+          database.columnCodepostal: userData.codepostal,
+          database.columnVille: userData.ville,
+          database.columnPays: userData.pays,
+          database.columnNiveau: userData.niveau,
+          database.columnUser: userData.user,
+        };
+        final userId = await database.insertUser(userMap);
+
+        print('User ID: ${userData.userId}');
+        print('User Name: ${userData.name}');
+        // ... other user properties
+      } else {
+        // L'utilisateur existe déjà dans la base de données.
+        print('User already exists in the database.');
+      }
     } else {
       // Handle the case where user data retrieval failed.
       print('User data retrieval failed.');
     }
   }
+
+
   Future<void> retrieveEmailAndPassword() async {
     final prefs = await SharedPreferences.getInstance();
     final storedEmail = prefs.getString('email');

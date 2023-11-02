@@ -4,16 +4,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appariteurs/page/profile/components/profile_pic.dart';
 import 'package:flutter/material.dart';
 
+import '../../../storage/sqlLite.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  UserData? userinit;
-  String dataSemail ="";
-  String dataSpassword ="";
+  UserData? userData;
+  bool isEditing = false;
+  late DatabaseHelper databaseHelper;
+
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController genderController = TextEditingController();
@@ -23,96 +27,63 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController addressController = TextEditingController();
   TextEditingController postalCodeController = TextEditingController();
   TextEditingController countryController = TextEditingController();
-  bool isEditing = false;
+
   Future<void> getStoredEmailAndPassword() async {
     final prefs = await SharedPreferences.getInstance();
     final storedEmail = prefs.getString('email');
     final storedPassword = prefs.getString('password');
 
     if (storedEmail != null && storedPassword != null) {
-      // Use the stored email and password as needed in your profilPage
-      dataSemail= storedEmail;
-
-      print('User ID: $storedEmail');
-      dataSpassword = storedPassword;
+      userData = await UserController.login(storedEmail, storedPassword);
     }
   }
-  Future<UserData?> getUserDataFromStorage() async {
-    final prefs = await SharedPreferences.getInstance();
 
-    final userId = prefs.getInt('user_id');
-    final appariteurId = prefs.getInt('appariteur_id');
-    final name = prefs.getString('name');
-    final email = prefs.getString('email');
-    final tel = prefs.getString('tel');
-    final sexe = prefs.getString('sexe');
-    final image = prefs.getString('image');
-    final adresse = prefs.getString('adresse');
-    final datenais = prefs.getString('datenais');
-    final lieunais = prefs.getString('lieunais');
-    final rue = prefs.getString('rue');
-    final codepostal = prefs.getString('codepostal');
-    final ville = prefs.getString('ville');
-    final pays = prefs.getString('pays');
-    final niveau = prefs.getString('niveau');
-    final user = prefs.getString('user');
+  Future<void> getUserDataFromDatabase() async {
+    databaseHelper = DatabaseHelper.instance;
+    List<Map<String, dynamic>> users = await databaseHelper.getUsers();
 
-    if (userId != null && appariteurId != null) {
-      return UserData(
-        userId: userId.toString(),
-        appariteurId: appariteurId.toString(),
-        name: name ?? '',
-        email: email ?? '',
-        tel: tel ?? '',
-        sexe: sexe ?? '',
-        image: image ?? '',
-        adresse: adresse ?? '',
-        datenais: datenais ?? '',
-        lieunais: lieunais ?? '',
-        rue: rue ?? '',
-        codepostal: codepostal ?? '',
-        ville: ville ?? '',
-        pays: pays ?? '',
-        niveau: niveau ?? '',
-        user: user ?? '',
+    if (users.isNotEmpty) {
+      Map<String, dynamic> userMap = users.first;
+      userData = UserData(
+        userId: userMap[databaseHelper.columnUserId],
+        appariteurId: userMap[databaseHelper.columnAppariteurId],
+        name: userMap[databaseHelper.columnName],
+        email: userMap[databaseHelper.columnEmail],
+        tel: userMap[databaseHelper.columnTel],
+        sexe: userMap[databaseHelper.columnSexe],
+        image: userMap[databaseHelper.columnImage],
+        adresse: userMap[databaseHelper.columnAdresse],
+        datenais: userMap[databaseHelper.columnDatenais],
+        lieunais: userMap[databaseHelper.columnLieunais],
+        rue: userMap[databaseHelper.columnRue],
+        codepostal: userMap[databaseHelper.columnCodepostal],
+        ville: userMap[databaseHelper.columnVille],
+        pays: userMap[databaseHelper.columnPays],
+        niveau: userMap[databaseHelper.columnNiveau],
+        user: userMap[databaseHelper.columnUser],
       );
-    } else {
-      return null;
+
+      nameController.text = userData!.name;
+      emailController.text = userData!.email;
+      genderController.text = userData!.sexe;
+      phoneNumberController.text = userData!.tel;
+      birthDateController.text = userData!.datenais;
+      lieuxPlaceController.text = userData!.lieunais;
+      addressController.text = userData!.adresse;
+      postalCodeController.text = userData!.codepostal;
+      countryController.text = userData!.pays;
     }
   }
-  Future<void> getUserDataInStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Récupérez les données de l'utilisateur depuis SharedPreferences
-    UserData? userData = await getUserDataFromStorage();
-
-    if (userData != null) {
-      // Remplissez vos contrôleurs de texte avec les données de l'utilisateur récupérées
-      nameController.text = userData.name;
-      emailController.text = userData.email;
-      genderController.text = userData.sexe;
-      phoneNumberController.text = userData.tel;
-      birthDateController.text = userData.datenais;
-      lieuxPlaceController.text = userData.lieunais;
-      addressController.text = userData.rue;
-      postalCodeController.text = userData.codepostal;
-      countryController.text = userData.pays;
-      } else {
-      // Gérez le cas où la récupération des données de l'utilisateur a échoué.
-      print('Échec de la récupération des données de l\'utilisateur.');
-      }
-      }
 
   @override
   void initState() {
     super.initState();
     getStoredEmailAndPassword();
-    getUserDataFromStorage();
-    getUserDataInStorage();
+    getUserDataFromDatabase();
   }
   @override
   Widget build(BuildContext context) {
-    getUserDataFromStorage();
+    getUserData();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
