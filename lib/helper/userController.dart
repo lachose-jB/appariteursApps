@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:appariteurs/helper/user.dart';
 import 'package:http/http.dart' as http;
 class UserController {
+  String? authToken;
   static Future<UserData?> login(String email, String password) async {
     try {
       const url = 'https://appariteur.com/api/user/login.php';
@@ -10,13 +11,12 @@ class UserController {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'emailUser': email, 'passwordUser': password}),
       );
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
           final userData = data['userData'];
           print('UserData: $userData');
+
           return UserData(
             userId: userData['user_id'],
             appariteurId: userData['appariteur_id'],
@@ -42,4 +42,5 @@ class UserController {
     }
     return null; // Gérer les erreurs comme vous le souhaitez
   }
+
 }

@@ -6,7 +6,9 @@ import 'package:appariteurs/page/planning/planningScreen.dart';
 import 'package:appariteurs/page/proces_verbale/pvScreen.dart';
 import 'package:appariteurs/page/profile/profileScreen.dart';
 class MyBottomBar extends StatefulWidget {
-  const MyBottomBar(token, {Key? key}) : super(key: key);
+  final String email;
+  final String password;
+  const MyBottomBar(this.email, this.password, {super.key});
 
   @override
   _MyBottomBarState createState() => _MyBottomBarState();

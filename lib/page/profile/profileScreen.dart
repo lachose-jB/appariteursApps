@@ -7,7 +7,7 @@ import '../notif/notifScreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   static String routeName = "/profile";
-  const ProfileScreen({super.key});
+   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
         PageName: "Profile", // Pass the page name here
       ),
       backgroundColor: Colors.blueAccent,
-      body: const BodyPr(),
+      body:  const BodyPr(),
       // bottomNavigationBar: MyBottomBar(selectedMenu: MenuState.pv,),
     );
   }

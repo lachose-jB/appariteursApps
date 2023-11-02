@@ -1,10 +1,12 @@
+import 'package:appariteurs/MyBottomBar.dart';
+import 'package:appariteurs/components/keyboard.dart';
 import 'package:appariteurs/helper/userController.dart';
-import 'package:appariteurs/loginPage/login_success/login_success_screen.dart';
 import 'package:flutter/material.dart';
-import '../../../acteursClass/userDfault.dart';
-import '../../../components/keyboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../components/size_config.dart';
 import '../../../constants.dart';
+import '../../../helper/user.dart';
+import '../../../page/profile/components/profilPage.dart';
 import '../../custom_surfix_icon.dart';
 import '../../default_button.dart';
 import '../../forgot_password/forgot_password_screen.dart';
@@ -17,6 +19,7 @@ class SignForm extends StatefulWidget {
 }
 
 class _SignFormState extends State<SignForm> {
+  String? authToken; // Global variable to store the token
   final _formKey = GlobalKey<FormState>();
   String email = "";
   String password = "";
@@ -24,6 +27,12 @@ class _SignFormState extends State<SignForm> {
   ApiHelper apiHelper = ApiHelper();
   final List<String?> errors = [];
 
+  @override
+  void initState() {
+    super.initState();
+    // Retrieve email and password from storage
+    retrieveEmailAndPassword();
+  }
   void addError({String? error}) {
     if (!errors.contains(error)) {
       setState(() {
@@ -31,7 +40,6 @@ class _SignFormState extends State<SignForm> {
       });
     }
   }
-
   void removeError({String? error}) {
     if (errors.contains(error)) {
       setState(() {
@@ -39,23 +47,51 @@ class _SignFormState extends State<SignForm> {
       });
     }
   }
+ Future<void> handleLogin(email, password) async {
+   final user = await UserController.login(email, password);
+   if (user != null) {
+     KeyboardUtil.hideKeyboard(context);
+     Navigator.push(context, MaterialPageRoute(builder: (context) => MyBottomBar(email, password)));
+   } else {
+     // Gérer la connexion échouée ici
+   }
+   if (remember == true) {
+     final prefs = await SharedPreferences.getInstance();
+     prefs.setString('email', email);
+     prefs.setString('password', password);
+   }
+ }
+ Future<void> getUserData() async {
+    UserData? userData = await UserController.login(email, password);
 
-  Future<void> handleLogin(String email, String password) async {
-      final result = await apiHelper.loginUser('email', 'password');
-      if (result is Map<String, dynamic>) {
-        final String token = result['token'];
-        final Map<String, dynamic> userData = result['userData'];
-        // Do something with the token and user data
-        print(token);
-        print(userData);
-      } else {
-        // Handle login failure
-        print("Erreur d'identification: $result");
-      }
+    if (userData != null) {
+      // You have the initial user data, you can now use it as needed.
+      print('User ID: ${userData.userId}');
+      print('User Name: ${userData.name}');
+      // ... other user properties
+    } else {
+      // Handle the case where user data retrieval failed.
+      print('User data retrieval failed.');
     }
+  }
+  Future<void> retrieveEmailAndPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedEmail = prefs.getString('email');
+    final storedPassword = prefs.getString('password');
 
+    if (storedEmail != null && storedPassword != null) {
+      setState(() {
+        email = storedEmail;
+        password = storedPassword;
+        remember = true;
+      });
+    }
+  }
+
+// Call the function to get the user data
   @override
   Widget build(BuildContext context) {
+    getUserData();
     return Form(
       key: _formKey,
       child: Column(
@@ -96,14 +132,7 @@ class _SignFormState extends State<SignForm> {
             press: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                final user = await UserController.login(email!, password!);
-                if (user != null) {
-                  // Connexion réussie, faites ce que vous voulez avec les données utilisateur
-                  KeyboardUtil.hideKeyboard(context);
-                  Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-                } else {
-                  // Gérer la connexion échouée ici
-                }
+                handleLogin(email, password);
               }
             },
           ),
@@ -111,6 +140,7 @@ class _SignFormState extends State<SignForm> {
       ),
     );
   }
+
 
   TextFormField buildPasswordFormField() {
     return TextFormField(

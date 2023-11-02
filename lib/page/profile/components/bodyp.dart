@@ -18,7 +18,7 @@ class BodyPr extends StatelessWidget {
             text: "Mon Compte",
             icon: "assets/icons/User Icon.svg",
             press: () => {
-            Navigator.push(context,MaterialPageRoute(builder: (context) => const ProfilePage()),),
+            Navigator.push(context,MaterialPageRoute(builder: (context) => ProfilePage()),),
             },
             ),
             ProfileMenu(

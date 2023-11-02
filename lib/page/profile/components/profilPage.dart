@@ -1,61 +1,118 @@
-import 'package:appariteurs/acteursClass/userDfault.dart';
+import 'package:appariteurs/helper/user.dart';
+import 'package:appariteurs/helper/userController.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appariteurs/page/profile/components/profile_pic.dart';
 import 'package:flutter/material.dart';
 
-import '../../../helper/helper.dart';
-
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
-
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  UserData? userinit;
+  String dataSemail ="";
+  String dataSpassword ="";
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController birthDateController = TextEditingController();
-  TextEditingController birthPlaceController = TextEditingController();
+  TextEditingController lieuxPlaceController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   TextEditingController postalCodeController = TextEditingController();
   TextEditingController countryController = TextEditingController();
   bool isEditing = false;
-  //ApiHelper apiHelper = ApiHelper();
-  late UserModel user;
-  _ProfilePageState() {
-    user = UserModel(
-      user_id: user.user_id,
-      appariteur_id: user.appariteur_id,
-      name: user.getName,
-      email: user.getEmail,
-      sexe: user.getSexe,
-      status: user.getStatus,
-      image: user.image,
-      adresse: user.getAdresse,
-      datenais: user.getDateNais,
-      lieunais: user.getLieuNais,
-      rue: user.getRue,
-      code_postal: user.getCodePostal,
-      ville: user.getVille,
-      pays: user.getPays,
-      niveau: user.getNiveau,
-    );
+  Future<void> getStoredEmailAndPassword() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedEmail = prefs.getString('email');
+    final storedPassword = prefs.getString('password');
+
+    if (storedEmail != null && storedPassword != null) {
+      // Use the stored email and password as needed in your profilPage
+      dataSemail= storedEmail;
+
+      print('User ID: $storedEmail');
+      dataSpassword = storedPassword;
+    }
   }
+  Future<UserData?> getUserDataFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final userId = prefs.getInt('user_id');
+    final appariteurId = prefs.getInt('appariteur_id');
+    final name = prefs.getString('name');
+    final email = prefs.getString('email');
+    final tel = prefs.getString('tel');
+    final sexe = prefs.getString('sexe');
+    final image = prefs.getString('image');
+    final adresse = prefs.getString('adresse');
+    final datenais = prefs.getString('datenais');
+    final lieunais = prefs.getString('lieunais');
+    final rue = prefs.getString('rue');
+    final codepostal = prefs.getString('codepostal');
+    final ville = prefs.getString('ville');
+    final pays = prefs.getString('pays');
+    final niveau = prefs.getString('niveau');
+    final user = prefs.getString('user');
+
+    if (userId != null && appariteurId != null) {
+      return UserData(
+        userId: userId.toString(),
+        appariteurId: appariteurId.toString(),
+        name: name ?? '',
+        email: email ?? '',
+        tel: tel ?? '',
+        sexe: sexe ?? '',
+        image: image ?? '',
+        adresse: adresse ?? '',
+        datenais: datenais ?? '',
+        lieunais: lieunais ?? '',
+        rue: rue ?? '',
+        codepostal: codepostal ?? '',
+        ville: ville ?? '',
+        pays: pays ?? '',
+        niveau: niveau ?? '',
+        user: user ?? '',
+      );
+    } else {
+      return null;
+    }
+  }
+  Future<void> getUserDataInStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Récupérez les données de l'utilisateur depuis SharedPreferences
+    UserData? userData = await getUserDataFromStorage();
+
+    if (userData != null) {
+      // Remplissez vos contrôleurs de texte avec les données de l'utilisateur récupérées
+      nameController.text = userData.name;
+      emailController.text = userData.email;
+      genderController.text = userData.sexe;
+      phoneNumberController.text = userData.tel;
+      birthDateController.text = userData.datenais;
+      lieuxPlaceController.text = userData.lieunais;
+      addressController.text = userData.rue;
+      postalCodeController.text = userData.codepostal;
+      countryController.text = userData.pays;
+      } else {
+      // Gérez le cas où la récupération des données de l'utilisateur a échoué.
+      print('Échec de la récupération des données de l\'utilisateur.');
+      }
+      }
+
   @override
   void initState() {
     super.initState();
-    // Set the initial values for the TextFormFields
-    nameController.text = user.getName;
-    genderController.text = user.getSexe;
-    birthDateController.text = user.getDateNais;
-    birthPlaceController.text = user.getLieuNais;
-    emailController.text = user.getEmail;
-    // Add similar lines for the other fields
+    getStoredEmailAndPassword();
+    getUserDataFromStorage();
+    getUserDataInStorage();
   }
   @override
   Widget build(BuildContext context) {
+    getUserDataFromStorage();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -127,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
-                        controller: birthPlaceController,
+                        controller: lieuxPlaceController,
                         decoration: const InputDecoration(
                           labelText: 'Lieux de naissance',
                         ),

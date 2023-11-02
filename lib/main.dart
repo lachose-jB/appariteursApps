@@ -12,8 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
+    return const MaterialApp(debugShowCheckedModeBanner: false,
       title: 'Appariteur',
       home: SplashScreen(), // Créez une instance de SplashScreen
     );
