@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../components/size_config.dart';
 import '../../../constants.dart';
-import '../../../helper/user.dart';
+import '../../../acteursClass/user.dart';
 import '../../../storage/sqlLite.dart';
 import '../../custom_surfix_icon.dart';
 import '../../default_button.dart';
@@ -14,6 +14,8 @@ import '../../form_error.dart';
 import 'package:appariteurs/helper/helper.dart';
 
 class SignForm extends StatefulWidget {
+  const SignForm({super.key});
+
   @override
   _SignFormState createState() => _SignFormState();
 }
@@ -89,7 +91,6 @@ class _SignFormState extends State<SignForm> {
           database.columnNiveau: userData.niveau,
           database.columnUser: userData.user,
         };
-        final userId = await database.insertUser(userMap);
 
         print('User ID: ${userData.userId}');
         print('User Name: ${userData.name}');
@@ -192,6 +193,7 @@ class _SignFormState extends State<SignForm> {
           addError(error: kShortPassError);
           return "";
         }
+        return null;
       },
       decoration: const InputDecoration(
         labelText: "Mot de Passe",
@@ -206,13 +208,6 @@ class _SignFormState extends State<SignForm> {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue!,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
-      },
       validator: (value) {
         if (value!.isEmpty) {
           addError(error: kEmailNullError);
@@ -220,6 +215,13 @@ class _SignFormState extends State<SignForm> {
         } else if (!emailValidatorRegExp.hasMatch(value)) {
           addError(error: kInvalidEmailError);
           return "";
+        }
+      },
+      onChanged: (value) {
+        if (value.isNotEmpty) {
+          removeError(error: kEmailNullError);
+        } else if (emailValidatorRegExp.hasMatch(value)) {
+          removeError(error: kInvalidEmailError);
         }
       },
       decoration: const InputDecoration(

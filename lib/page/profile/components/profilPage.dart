@@ -1,4 +1,4 @@
-import 'package:appariteurs/helper/user.dart';
+import 'package:appariteurs/acteursClass/user.dart';
 import 'package:appariteurs/helper/userController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appariteurs/page/profile/components/profile_pic.dart';

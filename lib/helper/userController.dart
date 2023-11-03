@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:appariteurs/helper/user.dart';
+import 'package:appariteurs/acteursClass/user.dart';
 import 'package:http/http.dart' as http;
 class UserController {
   String? authToken;
