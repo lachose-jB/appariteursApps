@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appariteurs/page/profile/components/profile_pic.dart';
 import 'package:flutter/material.dart';
 
-import '../../../storage/sqlLite.dart';
+import '../../../helper/sqlLite.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

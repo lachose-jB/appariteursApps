@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../components/size_config.dart';
 import '../../../constants.dart';
 import '../../../acteursClass/user.dart';
-import '../../../storage/sqlLite.dart';
+import '../../../helper/sqlLite.dart';
 import '../../custom_surfix_icon.dart';
 import '../../default_button.dart';
 import '../../forgot_password/forgot_password_screen.dart';
